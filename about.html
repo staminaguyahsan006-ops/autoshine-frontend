@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | AutoShine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080a0f;
+            --bg-light: #0d1117;
+            --gold: #C9A84C;
+            --gold-light: #e0c066;
+            --gold-dark: #a88a3a;
+            --blue: #1A6CF5;
+            --text: #e8eaed;
+            --text-muted: #8a8f98;
+            --border: rgba(255,255,255,0.06);
+            --glass: rgba(255,255,255,0.03);
+            --card-bg: #111620;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+        a { text-decoration: none; color: inherit; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); } 70% { box-shadow: 0 0 0 15px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+
+        .animate-on-scroll { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+        .delay-4 { transition-delay: 0.4s; }
+
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1.2rem 5%; display: flex; justify-content: space-between; align-items: center; transition: all 0.4s ease; }
+        .navbar.scrolled { background: rgba(8,10,15,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0.8rem 5%; }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold); letter-spacing: 2px; transition: transform 0.3s; }
+        .logo:hover { transform: scale(1.05); }
+        .nav-links { display: flex; align-items: center; gap: 2.5rem; list-style: none; }
+        .nav-links a { font-weight: 500; font-size: 0.95rem; color: var(--text-muted); transition: color 0.3s; position: relative; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 0.3s; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .btn { display: inline-block; padding: 0.85rem 2rem; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 0.95rem; border-radius: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); border: none; letter-spacing: 0.5px; text-align: center; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #080a0f; box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
+        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(201,168,76,0.4); }
+        .btn-outline { background: transparent; color: var(--gold); border: 1.5px solid var(--gold); }
+        .btn-outline:hover { background: var(--gold); color: #080a0f; transform: translateY(-3px); }
+        .btn-large { padding: 1rem 2.5rem; font-size: 1.05rem; }
+
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; z-index: 1001; }
+        .hamburger span { width: 28px; height: 2px; background: var(--gold); transition: all 0.3s; transform-origin: center; }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+        .mobile-menu { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(8,10,15,0.98); backdrop-filter: blur(20px); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; transition: right 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .mobile-menu.active { right: 0; }
+        .mobile-menu a { font-size: 1.5rem; font-weight: 500; color: var(--text); transition: color 0.3s; }
+        .mobile-menu a:hover { color: var(--gold); }
+
+        .page-hero { min-height: 40vh; display: flex; align-items: center; justify-content: center; position: relative; padding: 8rem 5% 3rem; background: radial-gradient(circle at 50% 30%, rgba(201,168,76,0.1) 0%, transparent 55%), radial-gradient(circle at 80% 60%, rgba(26,108,245,0.05) 0%, transparent 40%); }
+        .page-hero-content { text-align: center; max-width: 900px; }
+        .breadcrumb { display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: var(--text-muted); transition: color 0.3s; }
+        .breadcrumb a:hover { color: var(--gold); }
+        .breadcrumb .sep { color: var(--gold-dark); }
+        .breadcrumb .current { color: var(--gold); }
+        .page-hero h1 { font-size: clamp(2.5rem, 7vw, 5rem); line-height: 1; margin-bottom: 1rem; background: linear-gradient(to bottom, #fff 0%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: fadeInUp 1s 0.2s both; }
+        .page-hero p { font-size: 1.15rem; color: var(--text-muted); animation: fadeInUp 1s 0.4s both; }
+
+        section { padding: 5rem 5%; position: relative; }
+        .section-header { text-align: center; margin-bottom: 3.5rem; }
+        .section-header h2 { font-size: clamp(2rem, 5vw, 3rem); color: var(--text); margin-bottom: 0.75rem; position: relative; display: inline-block; }
+        .section-header h2::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
+        .section-header p { color: var(--text-muted); font-size: 1.1rem; margin-top: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        .story-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; max-width: 1200px; margin: 0 auto; align-items: start; }
+        @media (max-width: 968px) { .story-grid { grid-template-columns: 1fr; gap: 3rem; } }
+
+        .story-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 0.5rem; }
+        .story-heading { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text); margin-bottom: 1.5rem; line-height: 1.1; }
+        .story-text p { color: var(--text-muted); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.7; }
+        .story-stats { display: flex; gap: 2rem; margin-top: 2rem; }
+        .story-stat { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; text-align: center; min-width: 120px; }
+        .story-stat .num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--gold); line-height: 1; }
+        .story-stat .label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        .story-visual { background: var(--card-bg); border: 1.5px solid var(--gold); border-radius: 20px; padding: 3rem 2rem; text-align: center; position: relative; }
+        .story-visual .car-icon { font-size: 5rem; margin-bottom: 1rem; }
+        .story-visual .est { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: var(--gold); line-height: 1; }
+        .story-visual .tagline { font-size: 1rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .story-visual .check-item { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.8rem; color: var(--text); font-size: 0.95rem; }
+        .story-visual .check-item span { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+
+        .stats-section { background: linear-gradient(135deg, rgba(26,108,245,0.08), rgba(201,168,76,0.05)); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4rem 5%; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; text-align: center; }
+        .stat-item .num { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; color: var(--gold); line-height: 1; }
+        .stat-item .label { font-size: 1rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+        .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; }
+        .value-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem; text-align: center; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .value-card:hover { transform: translateY(-8px); border-color: rgba(201,168,76,0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .value-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .value-card h3 { font-size: 1.4rem; color: var(--text); margin-bottom: 0.75rem; }
+        .value-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; }
+        .team-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2rem; text-align: center; transition: all 0.4s ease; position: relative; }
+        .team-card:hover { border-color: rgba(201,168,76,0.2); box-shadow: 0 0 40px rgba(201,168,76,0.08); }
+        .team-avatar { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--blue)); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #080a0f; margin: 0 auto 1.5rem; border: 3px solid var(--gold); }
+        .team-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--text); margin-bottom: 0.3rem; }
+        .team-card .role { color: var(--gold); font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; }
+        .team-card .bio { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
+        .team-card .divider { width: 40px; height: 2px; background: var(--gold); margin: 1rem auto; }
+
+        .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1100px; margin: 0 auto; align-items: center; }
+        @media (max-width: 768px) { .why-grid { grid-template-columns: 1fr; gap: 2rem; } }
+        .why-left h3 { font-size: 2rem; color: var(--text); margin-bottom: 1rem; }
+        .why-left p { color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.7; }
+        .why-right { list-style: none; }
+        .why-right li { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0; color: var(--text-muted); font-size: 1rem; border-bottom: 1px solid var(--border); }
+        .why-right li::before { content: '✓'; color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        .testimonial-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; position: relative; transition: all 0.4s ease; }
+        .testimonial-card:hover { transform: translateY(-5px); border-color: rgba(201,168,76,0.15); }
+        .testimonial-card::before { content: '"'; font-family: 'Bebas Neue', sans-serif; font-size: 6rem; color: rgba(201,168,76,0.1); position: absolute; top: 10px; left: 20px; line-height: 1; }
+        .stars { color: var(--gold); font-size: 1.2rem; margin-bottom: 1rem; position: relative; z-index: 1; }
+        .testimonial-text { color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin-bottom: 1.5rem; position: relative; z-index: 1; }
+        .testimonial-author { font-weight: 600; color: var(--text); position: relative; z-index: 1; }
+
+        .cta-banner { padding: 5rem 5%; text-align: center; position: relative; overflow: hidden; background: linear-gradient(135deg, rgba(26,108,245,0.12), rgba(201,168,76,0.08)); border-top: 1px solid var(--border); }
+        .cta-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+        .cta-content h2 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 1rem; color: var(--text); }
+        .cta-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+        footer { background: #050608; padding: 4rem 5% 2rem; border-top: 1px solid var(--border); }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; max-width: 1200px; margin: 0 auto 3rem; }
+        .footer-brand .logo { margin-bottom: 1rem; display: inline-block; }
+        .footer-brand p { color: var(--text-muted); font-size: 0.95rem; max-width: 300px; }
+        .footer-links h4 { font-family: 'Barlow', sans-serif; font-weight: 600; color: var(--text); margin-bottom: 1.5rem; font-size: 1rem; }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--text-muted); font-size: 0.95rem; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--gold); }
+        .social-links { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .social-links a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s; font-size: 1rem; }
+        .social-links a:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-3px); }
+        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.9rem; max-width: 1200px; margin: 0 auto; }
+
+        .whatsapp-float { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 20px rgba(37,211,102,0.4); z-index: 999; animation: pulse 2s infinite; transition: transform 0.3s; }
+        .whatsapp-float:hover { transform: scale(1.1); }
+
+        @media (max-width: 968px) { .nav-links { display: none; } .hamburger { display: flex; } .footer-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 640px) { .page-hero { padding-top: 7rem; } section { padding: 4rem 5%; } .footer-grid { grid-template-columns: 1fr; gap: 2rem; } .whatsapp-float { width: 50px; height: 50px; bottom: 1.5rem; right: 1.5rem; } .story-stats { flex-direction: column; gap: 1rem; } .cta-buttons { flex-direction: column; align-items: center; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="logo">AutoShine</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="booking.html" class="btn btn-gold">Book Now</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="booking.html" class="btn btn-gold">Book Now</a>
+    </div>
+
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">&#8250;</span>
+                <span class="current">About</span>
+            </div>
+            <h1>ABOUT AUTOSHINE</h1>
+            <p>A passionate team of car care professionals bringing the detail shop to your doorstep</p>
+        </div>
+    </section>
+
+    <section class="story-section">
+        <div class="story-grid">
+            <div class="story-text animate-on-scroll">
+                <div class="story-label">OUR STORY</div>
+                <h2 class="story-heading">Born From a Passion for Clean Cars</h2>
+                <p>AutoShine started when a group of friends realized that quality car detailing should not require you to drive across the city, wait for hours, and then drive back. We believed there was a better way.</p>
+                <p>We started with one car, one kit, and one mission — to bring professional-grade detailing directly to our customers. Today we have served hundreds of satisfied car owners across the city, all from the comfort of their own homes.</p>
+                <p>Every detail we do is treated like it is our own car. We use only premium products, proven techniques, and we never cut corners. Your car deserves the best — and we deliver exactly that.</p>
+                <div class="story-stats">
+                    <div class="story-stat">
+                        <div class="num">500+</div>
+                        <div class="label">Cars Detailed</div>
+                    <div class="story-stat">
+                        <div class="num">100%</div>
+                        <div class="label">Satisfaction Rate</div>
+                </div>
+            <div class="story-visual animate-on-scroll delay-2">
+                <div class="car-icon">&#128663;</div>
+                <div class="est">Est. 2022</div>
+                <div class="tagline">Premium Mobile Detailing</div>
+                <div class="check-item"><span>&#10003;</span> Fully Certified Team</div>
+                <div class="check-item"><span>&#10003;</span> Premium Products Only</div>
+                <div class="check-item"><span>&#10003;</span> Insured &amp; Professional</div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item animate-on-scroll">
+                <div class="num" data-target="500">0</div>
+                <div class="label">Cars Detailed</div>
+            <div class="stat-item animate-on-scroll delay-1">
+                <div class="num" data-target="100">0</div>
+                <div class="label">Satisfaction Rate</div>
+            <div class="stat-item animate-on-scroll delay-2">
+                <div class="num" data-target="3">0</div>
+                <div class="label">Years Experience</div>
+            <div class="stat-item animate-on-scroll delay-3">
+                <div class="num" data-target="50">0</div>
+                <div class="label">5-Star Reviews</div>
+        </div>
+    </section>
+
+    <section class="values-section">
+        <div class="section-header animate-on-scroll">
+            <h2>WHAT WE STAND FOR</h2>
+        </div>
+        <div class="values-grid">
+            <div class="value-card animate-on-scroll delay-1">
+                <div class="icon">&#11088;</div>
+                <h3>Quality First</h3>
+                <p>We never compromise on the quality of our work or the products we use. Every job gets 100% effort.</p>
+            </div>
+            <div class="value-card animate-on-scroll delay-2">
+                <div class="icon">&#127968;</div>
+                <h3>Customer Convenience</h3>
+                <p>We built this business around one idea — make it as easy as possible for you to get a great detail done.</p>
+            </div>
+            <div class="value-card animate-on-scroll delay-3">
+                <div class="icon">&#127807;</div>
+                <h3>Eco-Friendly</h3>
+                <p>We use biodegradable, eco-safe products wherever possible. Great for your car, gentle on the planet.</p>
+            </div>
+            <div class="value-card animate-on-scroll delay-4">
+                <div class="icon">&#128269;</div>
+                <h3>Fully Transparent</h3>
+                <p>No hidden fees, no surprises. You know the price before we start, and we stick to it every time.</p>
+            </div>
+    </section>
+
+    <section class="team-section">
+        <div class="section-header animate-on-scroll">
+            <h2>THE TEAM BEHIND AUTOSHINE</h2>
+            <p>A dedicated group of car enthusiasts and detailing professionals</p>
+        </div>
+        <div class="team-grid">
+            <div class="team-card animate-on-scroll delay-1">
+                <div class="team-avatar">AK</div>
+                <h3>Ahmed Khan</h3>
+                <div class="role">Founder &amp; Lead Detailer</div>
+                <div class="divider"></div>
+                <p class="bio">Car enthusiast with 5+ years of professional detailing experience. Certified in paint correction and ceramic coating.</p>
+            </div>
+            <div class="team-card animate-on-scroll delay-2">
+                <div class="team-avatar">BR</div>
+                <h3>Bilal Raza</h3>
+                <div class="role">Co-Founder &amp; Operations</div>
+                <div class="divider"></div>
+                <p class="bio">Manages bookings, scheduling, and customer experience. Makes sure every appointment runs perfectly on time.</p>
+            </div>
+            <div class="team-card animate-on-scroll delay-3">
+                <div class="team-avatar">SR</div>
+                <h3>Sara Rehman</h3>
+                <div class="role">Customer Relations</div>
+                <div class="divider"></div>
+                <p class="bio">Handles all customer queries, follow-ups, and makes sure every client leaves fully satisfied.</p>
+            </div>
+    </section>
+
+    <section class="why-section">
+        <div class="section-header animate-on-scroll">
+            <h2>WHY CUSTOMERS LOVE AUTOSHINE</h2>
+        </div>
+        <div class="why-grid">
+            <div class="why-left animate-on-scroll">
+                <h3>The AutoShine Difference</h3>
+                <p>We are not just another car wash. We are a team of passionate professionals who treat every vehicle like it is our own. From the products we choose to the techniques we use — everything is done with purpose and precision.</p>
+                <a href="booking.html" class="btn btn-gold">Book Now</a>
+            </div>
+            <ul class="why-right animate-on-scroll delay-2">
+                <li>We come to your home or office</li>
+                <li>No waiting, no queues</li>
+                <li>Premium professional-grade products</li>
+                <li>Certified and trained detailers</li>
+                <li>Fully insured service</li>
+                <li>Transparent pricing, no hidden fees</li>
+                <li>100% satisfaction guarantee</li>
+                <li>Available 7 days a week</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="testimonials-section">
+        <div class="section-header animate-on-scroll">
+            <h2>WHAT OUR CLIENTS SAY</h2>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card animate-on-scroll delay-1">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="testimonial-text">These guys are incredible. My car has never looked this good. Highly recommend the premium package!</p>
+                <div class="testimonial-author">Ahmed K.</div>
+            <div class="testimonial-card animate-on-scroll delay-2">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="testimonial-text">So convenient! They came to my apartment building and detailed my car while I worked from home. Will book every month.</p>
+                <div class="testimonial-author">Sara M.</div>
+            <div class="testimonial-card animate-on-scroll delay-3">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="testimonial-text">Professional, punctual, and thorough. The ceramic coating they applied looks amazing even months later.</p>
+                <div class="testimonial-author">Usman T.</div>
+        </div>
+    </section>
+
+    <section class="cta-banner">
+        <div class="cta-content animate-on-scroll">
+            <h2>READY TO EXPERIENCE THE AUTOSHINE DIFFERENCE?</h2>
+            <p>Join hundreds of satisfied customers. Book your first appointment today.</p>
+            <div class="cta-buttons">
+                <a href="booking.html" class="btn btn-gold btn-large">Book Now</a>
+                <a href="contact.html" class="btn btn-outline btn-large">Contact Us</a>
+            </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">AutoShine</a>
+                <p>Premium mobile car detailing that comes to you. Experience the luxury of a showroom shine at your doorstep.</p>
+                <div class="social-links">
+                    <a href="https://wa.me/YOURPHONENUMBER" target="_blank" title="WhatsApp">&#9742;</a>
+                    <a href="#" target="_blank" title="Instagram">&#128247;</a>
+                    <a href="#" target="_blank" title="Facebook">f</a>
+                    <a href="#" target="_blank" title="TikTok">&#9836;</a>
+                </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="services.html">Basic Detail</a></li>
+                    <li><a href="services.html">Standard Detail</a></li>
+                    <li><a href="services.html">Premium Detail</a></li>
+                    <li><a href="services.html">Fleet Services</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="mailto:hello@autoshine.com">hello@autoshine.com</a></li>
+                    <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+                    <li><a href="booking.html">Book Online</a></li>
+                </ul>
+            </div>
+        <div class="footer-bottom">
+            <p>&#169; 2025 AutoShine. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/YOURPHONENUMBER" class="whatsapp-float" target="_blank" title="Chat on WhatsApp">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+    </a>
+
+    <script>
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        });
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+        // Animated counters
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const numEl = entry.target.querySelector('.num');
+                    const target = parseInt(numEl.dataset.target);
+                    const duration = 2000;
+                    const start = performance.now();
+                    
+                    function update(currentTime) {
+                        const elapsed = currentTime - start;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        const current = Math.floor(easeOut * target);
+                        numEl.textContent = current + (target === 100 ? '%' : target === 3 ? '+' : '+');
+                        if (progress < 1) requestAnimationFrame(update);
+                    }
+                    
+                    requestAnimationFrame(update);
+                    statObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.stat-item').forEach(el => statObserver.observe(el));
+    </script>
+</body>
+</html>

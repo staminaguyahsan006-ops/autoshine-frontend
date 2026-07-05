@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | AutoShine</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080a0f;--bg-light:#0d1117;--bg-card:#111620;--gold:#C9A84C;--blue:#1A6CF5;--text:#e8eaed;--text-muted:#8a8f98;--border:rgba(255,255,255,0.06);--success:#25D366;--error:#ff5f5f;--orange:#f5a623;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
+h1,h2,h3,h4,h5,h6{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'Barlow',sans-serif;cursor:pointer;border:none;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes toastOut{from{transform:translateX(0);opacity:1;}to{transform:translateX(120%);opacity:0;}}
+.dashboard-layout{display:flex;min-height:100vh;}
+.sidebar{width:260px;background:var(--bg-light);border-right:1px solid var(--gold);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s ease;}
+.sidebar-header{padding:1.5rem;text-align:center;border-bottom:1px solid var(--border);}
+.sidebar-header .logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);letter-spacing:2px;}
+.sidebar-header .portal{font-size:.75rem;color:var(--text-muted);letter-spacing:3px;text-transform:uppercase;margin-top:.25rem;}
+.sidebar-header .divider{width:40px;height:2px;background:var(--gold);margin:.75rem auto 0;border-radius:1px;}
+.sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto;}
+.sidebar-nav a{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;color:var(--text-muted);font-size:.95rem;font-weight:500;transition:all .2s ease;border-left:3px solid transparent;}
+.sidebar-nav a:hover,.sidebar-nav a.active{color:var(--gold);background:rgba(201,168,76,.05);border-left-color:var(--gold);}
+.sidebar-nav a .icon{font-size:1.1rem;width:24px;text-align:center;}
+.sidebar-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);}
+.admin-name{font-size:.9rem;color:var(--text);margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;}
+.logout-btn{width:100%;padding:.6rem;background:transparent;color:var(--error);border:1px solid rgba(255,95,95,.3);border-radius:6px;font-size:.85rem;font-weight:600;transition:all .3s ease;}
+.logout-btn:hover{background:rgba(255,95,95,.1);border-color:var(--error);}
+.view-site{display:block;margin-top:.75rem;font-size:.8rem;color:var(--gold);transition:color .3s ease;}
+.view-site:hover{color:#e0c066;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;}
+.sidebar-overlay.active{display:block;}
+.main-content{flex:1;margin-left:260px;min-height:100vh;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--bg-light);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.top-bar-left{display:flex;align-items:center;gap:1rem;}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;background:none;padding:4px;}
+.hamburger span{width:22px;height:2px;background:var(--gold);}
+.greeting{font-size:1.1rem;font-weight:600;}
+.greeting span{color:var(--gold);}
+.top-bar-right{display:flex;align-items:center;gap:1rem;}
+.current-date{color:var(--text-muted);font-size:.9rem;}
+.refresh-btn,.notif-btn{width:36px;height:36px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .3s ease;}
+.refresh-btn:hover,.notif-btn:hover{color:var(--gold);border-color:var(--gold);}
+.refresh-btn.spinning{animation:spin 1s linear infinite;}
+.content{padding:2rem;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;}
+.stat-card{background:var(--bg-card);border-radius:12px;padding:1.5rem;border-left:3px solid var(--gold);transition:all .3s ease;}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.3);}
+.stat-card.pending{border-left-color:var(--orange);}
+.stat-card.confirmed{border-left-color:var(--blue);}
+.stat-card.completed{border-left-color:var(--success);}
+.stat-icon{font-size:1.5rem;margin-bottom:.5rem;}
+.stat-number{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;line-height:1;color:var(--gold);animation:countUp .5s ease forwards;}
+.stat-card.pending .stat-number{color:var(--orange);}
+.stat-card.confirmed .stat-number{color:var(--blue);}
+.stat-card.completed .stat-number{color:var(--success);}
+.stat-label{font-size:.9rem;font-weight:600;color:var(--text);margin-top:.25rem;}
+.stat-sub{font-size:.8rem;color:var(--text-muted);}
+.filters-bar{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+.search-box{position:relative;flex:1;min-width:220px;max-width:320px;}
+.search-box input{width:100%;padding:.7rem 1rem .7rem 2.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;}
+.search-box input:focus{outline:none;border-color:var(--gold);}
+.search-box .search-icon{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--text-muted);}
+.filter-pills{display:flex;gap:.5rem;flex-wrap:wrap;}
+.filter-pill{padding:.5rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:50px;color:var(--text-muted);font-size:.85rem;cursor:pointer;transition:all .3s ease;}
+.filter-pill.active,.filter-pill:hover{background:var(--gold);color:#080a0f;border-color:var(--gold);}
+.date-filters{display:flex;align-items:center;gap:.5rem;}
+.date-filters input[type="date"]{padding:.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.85rem;}
+.export-btn{padding:.55rem 1.2rem;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:6px;font-size:.85rem;font-weight:600;transition:all .3s ease;}
+.export-btn:hover{background:var(--gold);color:#080a0f;}
+.section-title{font-size:1.4rem;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.table-wrapper{background:var(--bg-light);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2.5rem;}
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--bg-card);color:var(--gold);font-family:'Barlow',sans-serif;font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;padding:.9rem 1rem;text-align:left;white-space:nowrap;}
+tbody tr{border-top:1px solid var(--border);transition:background .2s;}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
+tbody tr:hover{background:rgba(201,168,76,.04);}
+tbody td{padding:.85rem 1rem;font-size:.9rem;color:var(--text);white-space:nowrap;}
+.cell-name{font-weight:600;}
+.cell-phone{font-size:.8rem;color:var(--text-muted);}
+.cell-address{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
+.cell-message{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge-pill{display:inline-block;padding:.3rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.badge-pending{background:rgba(245,166,35,.12);color:var(--orange);border:1px solid rgba(245,166,35,.2);}
+.badge-confirmed{background:rgba(26,108,245,.12);color:var(--blue);border:1px solid rgba(26,108,245,.2);}
+.badge-completed{background:rgba(37,211,102,.12);color:var(--success);border:1px solid rgba(37,211,102,.2);}
+.badge-cancelled{background:rgba(255,95,95,.12);color:var(--error);border:1px solid rgba(255,95,95,.2);}
+.action-btns{display:flex;gap:.35rem;}
+.action-btn{width:30px;height:30px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .2s ease;}
+.action-btn:hover{color:var(--gold);border-color:var(--gold);}
+.action-btn.delete:hover{color:var(--error);border-color:var(--error);}
+.empty-state{text-align:center;padding:3rem;color:var(--text-muted);}
+.empty-state .icon{font-size:2.5rem;margin-bottom:.75rem;}
+.empty-state h3{font-size:1.2rem;color:var(--text);margin-bottom:.25rem;}
+.skeleton{background:linear-gradient(90deg,var(--bg-card) 25%,rgba(255,255,255,.04) 50%,var(--bg-card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:14px;}
+.skeleton-row td{padding:1rem;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.active{display:flex;}
+.modal-card{background:var(--bg-light);border:1px solid var(--gold);border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;animation:modalIn .3s ease;position:relative;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:1.3rem;color:var(--text);}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-close:hover{color:var(--error);border-color:var(--error);}
+.modal-body{padding:1.5rem;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem 2rem;}
+.detail-item h4{font-size:.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:.25rem;font-family:'Barlow',sans-serif;font-weight:600;}
+.detail-item p{font-size:.95rem;color:var(--text);}
+.detail-item a{color:var(--gold);}
+.detail-item a:hover{text-decoration:underline;}
+.detail-full{grid-column:1/-1;}
+.detail-divider{grid-column:1/-1;height:1px;background:var(--border);margin:.25rem 0;}
+.status-update{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);}
+.status-update label{display:block;font-size:.85rem;color:var(--gold);font-weight:600;margin-bottom:.5rem;}
+.status-row{display:flex;gap:.75rem;align-items:center;}
+.status-select{padding:.6rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;min-width:160px;}
+.status-select:focus{outline:none;border-color:var(--gold);}
+.btn-gold{padding:.6rem 1.2rem;background:var(--gold);color:#080a0f;border:none;border-radius:8px;font-weight:600;font-size:.9rem;transition:all .3s ease;}
+.btn-gold:hover{background:#e0c066;transform:translateY(-1px);}
+.btn-red{padding:.6rem 1.2rem;background:transparent;color:var(--error);border:1px solid rgba(255,95,95,.3);border-radius:8px;font-weight:600;font-size:.9rem;transition:all .3s ease;}
+.btn-red:hover{background:rgba(255,95,95,.1);border-color:var(--error);}
+.modal-actions{display:flex;justify-content:space-between;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);}
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;align-items:center;justify-content:center;padding:1rem;}
+.confirm-overlay.active{display:flex;}
+.confirm-card{background:var(--bg-light);border:1px solid var(--error);border-radius:16px;width:100%;max-width:400px;padding:2rem;text-align:center;animation:modalIn .3s ease;}
+.confirm-card h3{color:var(--text);margin-bottom:.5rem;font-size:1.3rem;}
+.confirm-card p{color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem;}
+.confirm-btns{display:flex;gap:1rem;justify-content:center;}
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:400;display:flex;flex-direction:column;gap:.75rem;}
+.toast{padding:1rem 1.25rem;border-radius:10px;font-size:.9rem;font-weight:500;display:flex;align-items:center;gap:.6rem;box-shadow:0 8px 30px rgba(0,0,0,.4);animation:toastIn .4s cubic-bezier(.16,1,.3,1);}
+.toast.hiding{animation:toastOut .4s cubic-bezier(.16,1,.3,1) forwards;}
+.toast-success{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:var(--success);}
+.toast-error{background:rgba(255,95,95,.1);border:1px solid rgba(255,95,95,.3);color:var(--error);}
+@media(max-width:1024px){.stats-grid{grid-template-columns:repeat(2,1fr);}.detail-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main-content{margin-left:0;}.hamburger{display:flex;}.content{padding:1.25rem;}.top-bar{padding:.75rem 1.25rem;}.modal-card{max-height:100vh;border-radius:0;}.modal-overlay.active{padding:0;}}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr;}.filters-bar{flex-direction:column;align-items:stretch;}.search-box{max-width:none;}.date-filters{flex-wrap:wrap;}.filter-pills{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;}}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="dashboard-layout">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><div class="logo">AutoShine</div><div class="portal">Admin Portal</div><div class="divider"></div></div>
+<nav class="sidebar-nav">
+<a href="#" class="active" data-filter="all"><span class="icon">&#128202;</span>Dashboard</a>
+<a href="#" data-filter="all"><span class="icon">&#128197;</span>All Appointments</a>
+<a href="#" data-filter="pending"><span class="icon">&#9203;</span>Pending</a>
+<a href="#" data-filter="confirmed"><span class="icon">&#9989;</span>Confirmed</a>
+<a href="#" data-filter="completed"><span class="icon">&#127937;</span>Completed</a>
+<a href="#" data-filter="cancelled"><span class="icon">&#10060;</span>Cancelled</a>
+<a href="#" onclick="showSection('messages');return false;"><span class="icon">&#9993;&#65039;</span>Contact Messages</a>
+<a href="#" onclick="alert('Coming soon!');return false;"><span class="icon">&#9881;&#65039;</span>Settings</a>
+</nav>
+<div class="sidebar-footer"><div class="admin-name">&#128100; Admin</div><button class="logout-btn" onclick="logout()">Logout</button><a href="../index.html" class="view-site">&larr; View Website</a></div>
+</aside>
+<main class="main-content">
+<div class="top-bar">
+<div class="top-bar-left"><button class="hamburger" id="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button><div class="greeting" id="greeting">Good Morning, <span>Admin</span></div></div>
+<div class="top-bar-right"><div class="current-date" id="currentDate"></div><button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh">&#128260;</button><button class="notif-btn" title="Notifications">&#128276;</button></div></div>
+<div class="content">
+<div class="stats-grid" id="statsGrid">
+<div class="stat-card"><div class="stat-icon">&#128203;</div><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Appointments</div><div class="stat-sub">All time</div></div>
+<div class="stat-card pending"><div class="stat-icon">&#9203;</div><div class="stat-number" id="statPending">0</div><div class="stat-label">Pending Review</div><div class="stat-sub">Needs confirmation</div></div>
+<div class="stat-card confirmed"><div class="stat-icon">&#9989;</div><div class="stat-number" id="statConfirmed">0</div><div class="stat-label">Confirmed</div><div class="stat-sub">Upcoming</div></div>
+<div class="stat-card completed"><div class="stat-icon">&#127937;</div><div class="stat-number" id="statCompleted">0</div><div class="stat-label">Completed</div><div class="stat-sub">Done</div></div>
+</div>
+<div class="filters-bar">
+<div class="search-box"><span class="search-icon">&#128269;</span><input type="text" id="searchInput" placeholder="Search by name, phone, or car..." oninput="filterAppointments()"></div>
+<div class="filter-pills" id="filterPills">
+<button class="filter-pill active" data-status="all" onclick="setStatusFilter('all')">All</button>
+<button class="filter-pill" data-status="pending" onclick="setStatusFilter('pending')">Pending</button>
+<button class="filter-pill" data-status="confirmed" onclick="setStatusFilter('confirmed')">Confirmed</button>
+<button class="filter-pill" data-status="completed" onclick="setStatusFilter('completed')">Completed</button>
+<button class="filter-pill" data-status="cancelled" onclick="setStatusFilter('cancelled')">Cancelled</button>
+</div>
+<div class="date-filters"><input type="date" id="dateFrom" onchange="filterAppointments()"><span style="color:var(--text-muted)">&#8594;</span><input type="date" id="dateTo" onchange="filterAppointments()"></div>
+<button class="export-btn" onclick="exportCSV()">Export CSV</button>
+</div>
+<div class="section-title">&#128197; Appointments</div>
+<div class="table-wrapper" id="appointmentsTableWrapper"><div class="table-scroll"><table id="appointmentsTable"><thead><tr><th>#</th><th>Customer</th><th>Car</th><th>Service</th><th>Date &amp; Time</th><th>Address</th><th>Status</th><th>Actions</th></tr></thead><tbody id="appointmentsBody"></tbody></table></div><div class="empty-state" id="appointmentsEmpty" style="display:none"><div class="icon">&#128203;</div><h3>No appointments found</h3><p>Appointments will appear here once customers book</p></div></div>
+<div class="section-title">&#9993;&#65039; Contact Form Messages</div>
+<div class="table-wrapper" id="messagesTableWrapper"><div class="table-scroll"><table id="messagesTable"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Date</th><th>Action</th></tr></thead><tbody id="messagesBody"></tbody></table></div><div class="empty-state" id="messagesEmpty" style="display:none"><div class="icon">&#9993;&#65039;</div><h3>No messages yet</h3><p>Contact form submissions will appear here</p></div></div>
+</div>
+</main>
+</div>
+<div class="modal-overlay" id="detailModal"><div class="modal-card"><div class="modal-header"><h3 id="modalTitle">Appointment Details</h3><button class="modal-close" onclick="closeModal()">&times;</button></div><div class="modal-body" id="modalBody"></div></div></div>
+<div class="confirm-overlay" id="confirmModal"><div class="confirm-card"><h3>Delete Appointment?</h3><p>Are you sure? This cannot be undone.</p><div class="confirm-btns"><button class="btn-gold" onclick="cancelDelete()">Cancel</button><button class="btn-red" onclick="confirmDelete()">Delete</button></div></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script>
+(function checkAuth(){const t=localStorage.getItem('adminToken');if(!t)location.href='login.html';})();
+function getToken(){return localStorage.getItem('adminToken');}
+function logout(){localStorage.removeItem('adminToken');localStorage.removeItem('adminLoggedIn');location.href='login.html';}
+function setGreeting(){const h=new Date().getHours();let g='Good Evening';if(h<12)g='Good Morning';else if(h<18)g='Good Afternoon';document.getElementById('greeting').innerHTML=g+', <span>Admin</span>';}
+function setDate(){document.getElementById('currentDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+setGreeting();setDate();
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('active');}
+let allAppointments=[],allMessages=[],currentFilter='all',deleteTargetId=null,currentDetailId=null;
+function showSkeleton(id){const tbody=document.getElementById(id);tbody.innerHTML='';for(let i=0;i<5;i++){tbody.innerHTML+='<tr class="skeleton-row"><td><div class="skeleton" style="width:30px"></div></td><td><div class="skeleton" style="width:120px"></div></td><td><div class="skeleton" style="width:100px"></div></td><td><div class="skeleton" style="width:80px"></div></td><td><div class="skeleton" style="width:90px"></div></td><td><div class="skeleton" style="width:140px"></div></td><td><div class="skeleton" style="width:70px"></div></td><td><div class="skeleton" style="width:80px"></div></td></tr>';}}
+async function fetchAppointments(){showSkeleton('appointmentsBody');try{const r=await fetch(`${API_BASE_URL}/api/appointments`,{headers:{'Authorization':'Bearer '+getToken()}});if(r.status===401){logout();return;}const d=await r.json();allAppointments=Array.isArray(d)?d:[];updateStats();filterAppointments();}catch(e){showToast('Failed to load appointments','error');renderAppointments([]);}}
+async function fetchMessages(){try{const r=await fetch(`${API_BASE_URL}/api/contact`,{headers:{'Authorization':'Bearer '+getToken()}});if(r.status===401){logout();return;}const d=await r.json();allMessages=Array.isArray(d)?d:[];renderMessages();}catch(e){showToast('Failed to load messages','error');}}
+function refreshData(){const b=document.getElementById('refreshBtn');b.classList.add('spinning');Promise.all([fetchAppointments(),fetchMessages()]).then(()=>{b.classList.remove('spinning');showToast('Data refreshed','success');});}
+function updateStats(){const t=allAppointments.length,p=allAppointments.filter(a=>(a.status||'').toLowerCase()==='pending').length,c=allAppointments.filter(a=>(a.status||'').toLowerCase()==='confirmed').length,d=allAppointments.filter(a=>(a.status||'').toLowerCase()==='completed').length;document.getElementById('statTotal').textContent=t;document.getElementById('statPending').textContent=p;document.getElementById('statConfirmed').textContent=c;document.getElementById('statCompleted').textContent=d;}
+function setStatusFilter(s){currentFilter=s;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.toggle('active',b.dataset.status===s));document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.toggle('active',a.dataset.filter===s));filterAppointments();}
+function filterAppointments(){const q=document.getElementById('searchInput').value.toLowerCase();const df=document.getElementById('dateFrom').value;const dt=document.getElementById('dateTo').value;let f=allAppointments;if(currentFilter!=='all')f=f.filter(a=>(a.status||'').toLowerCase()===currentFilter);if(q)f=f.filter(a=>((a.name||'')+(a.phone||'')+(a.car||'')+(a.service||'')).toLowerCase().includes(q));if(df)f=f.filter(a=>new Date(a.date)>=new Date(df));if(dt)f=f.filter(a=>new Date(a.date)<=new Date(dt));renderAppointments(f);}
+function renderAppointments(list){const tbody=document.getElementById('appointmentsBody');const empty=document.getElementById('appointmentsEmpty');if(!list.length){tbody.innerHTML='';empty.style.display='block';return;}empty.style.display='none';tbody.innerHTML=list.map((a,i)=>'<tr><td>'+(i+1)+'</td><td><div class="cell-name">'+(a.name||'-')+'</div><div class="cell-phone">'+(a.phone||'-')+'</div></td><td>'+(a.car||'-')+'</td><td>'+(a.service||'-')+'</td><td>'+fmtDate(a.date)+'<br><span style="color:var(--text-muted);font-size:.8rem">'+(a.time||'-')+'</span></td><td class="cell-address" title="'+(a.address||'-')+'">'+(a.address||'-')+'</td><td><span class="badge-pill badge-'+((a.status||'pending').toLowerCase())+'">'+(a.status||'Pending')+'</span></td><td><div class="action-btns"><button class="action-btn" onclick="viewDetail(\''+(a._id||a.id)+'\')" title="View">&#128065;</button><button class="action-btn" onclick="viewDetail(\''+(a._id||a.id)+'\')" title="Edit">&#9999;&#65039;</button><button class="action-btn delete" onclick="promptDelete(\''+(a._id||a.id)+'\')" title="Delete">&#128465;&#65039;</button></div></td></tr>').join('');}
+function renderMessages(){const tbody=document.getElementById('messagesBody');const empty=document.getElementById('messagesEmpty');if(!allMessages.length){tbody.innerHTML='';empty.style.display='block';return;}empty.style.display='none';tbody.innerHTML=allMessages.map((m,i)=>'<tr><td>'+(i+1)+'</td><td>'+(m.fullName||m.name||'-')+'</td><td><a href="mailto:'+m.email+'">'+(m.email||'-')+'</a></td><td>'+(m.subject||'-')+'</td><td class="cell-message" title="'+(m.message||'-')+'">'+(m.message||'-')+'</td><td>'+fmtDate(m.createdAt||m.date)+'</td><td><div class="action-btns"><button class="action-btn" onclick="viewMessage('+i+')" title="View">&#128065;</button><button class="action-btn delete" onclick="deleteMessage('+i+')" title="Delete">&#128465;&#65039;</button></div></td></tr>').join('');}
+function fmtDate(d){if(!d)return'-';const date=new Date(d);return date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function viewDetail(id){const a=allAppointments.find(x=>(x._id||x.id)===id);if(!a)return;currentDetailId=id;document.getElementById('modalTitle').textContent='Appointment #'+(id.slice(-6)||id);document.getElementById('modalBody').innerHTML='<div class="detail-grid"><div class="detail-item"><h4>&#128100; Customer Name</h4><p>'+(a.name||'-')+'</p></div><div class="detail-item"><h4>&#128663; Car</h4><p>'+(a.car||'-')+'</p></div><div class="detail-item"><h4>&#128222; Phone</h4><p><a href="tel:'+a.phone+'">'+(a.phone||'-')+'</a></p></div><div class="detail-item"><h4>&#127912; Color</h4><p>'+(a.color||'-')+'</p></div><div class="detail-item"><h4>&#9993;&#65039; Email</h4><p><a href="mailto:'+a.email+'">'+(a.email||'-')+'</a></p></div><div class="detail-item"><h4>&#128207; Size</h4><p>'+(a.size||'-')+'</p></div><div class="detail-full detail-divider"></div><div class="detail-item"><h4>&#128295; Service</h4><p>'+(a.service||'-')+'</p></div><div class="detail-item"><h4>&#128197; Date</h4><p>'+fmtDate(a.date)+'</p></div><div class="detail-item"><h4>&#128336; Time</h4><p>'+(a.time||'-')+'</p></div><div class="detail-item"><h4>&#128205; Address</h4><p>'+(a.address||'-')+'</p></div><div class="detail-full"><h4>&#128221; Notes</h4><p>'+(a.notes||'None')+'</p></div><div class="detail-item"><h4>&#128202; Status</h4><p><span class="badge-pill badge-'+((a.status||'pending').toLowerCase())+'">'+(a.status||'Pending')+'</span></p></div><div class="detail-item"><h4>&#128338; Booked On</h4><p>'+fmtDate(a.createdAt)+'</p></div></div><div class="status-update"><label>Update Status</label><div class="status-row"><select class="status-select" id="statusSelect"><option value="Pending">Pending</option><option value="Confirmed">Confirmed</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option></select><button class="btn-gold" onclick="updateStatus()">Update Status</button></div><div class="modal-actions"><div></div><button class="btn-red" onclick="promptDelete(\''+id+'\')" >Delete Appointment</button></div></div>';document.getElementById('statusSelect').value=a.status||'Pending';document.getElementById('detailModal').classList.add('active');}
+function viewMessage(idx){const m=allMessages[idx];if(!m)return;document.getElementById('modalTitle').textContent='Message from '+(m.fullName||m.name||'Unknown');document.getElementById('modalBody').innerHTML='<div class="detail-grid"><div class="detail-item"><h4>Name</h4><p>'+(m.fullName||m.name||'-')+'</p></div><div class="detail-item"><h4>Email</h4><p><a href="mailto:'+m.email+'">'+(m.email||'-')+'</a></p></div><div class="detail-item"><h4>Phone</h4><p>'+(m.phone||'-')+'</p></div><div class="detail-item"><h4>Subject</h4><p>'+(m.subject||'-')+'</p></div><div class="detail-full"><h4>Message</h4><p>'+(m.message||'-')+'</p></div><div class="detail-item"><h4>Date</h4><p>'+fmtDate(m.createdAt||m.date)+'</p></div>';document.getElementById('detailModal').classList.add('active');}
+function closeModal(){document.getElementById('detailModal').classList.remove('active');document.getElementById('confirmModal').classList.remove('active');}
+function promptDelete(id){deleteTargetId=id;document.getElementById('confirmModal').classList.add('active');}
+function cancelDelete(){deleteTargetId=null;document.getElementById('confirmModal').classList.remove('active');}
+async function confirmDelete(){if(!deleteTargetId)return;try{const r=await fetch(`${API_BASE_URL}/api/appointments/`+deleteTargetId,{method:'DELETE',headers:{'Authorization':'Bearer '+getToken()}});if(r.status===401){logout();return;}if(r.ok){allAppointments=allAppointments.filter(a=>(a._id||a.id)!==deleteTargetId);updateStats();filterAppointments();closeModal();showToast('Appointment deleted','success');}else{showToast('Failed to delete','error');}}catch(e){showToast('Error deleting appointment','error');}deleteTargetId=null;}
+async function updateStatus(){if(!currentDetailId)return;const newStatus=document.getElementById('statusSelect').value;try{const r=await fetch(`${API_BASE_URL}/api/appointments/`+currentDetailId,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getToken()},body:JSON.stringify({status:newStatus})});if(r.status===401){logout();return;}if(r.ok){const a=allAppointments.find(x=>(x._id||x.id)===currentDetailId);if(a)a.status=newStatus;updateStats();filterAppointments();viewDetail(currentDetailId);showToast('Status updated to '+newStatus,'success');}else{showToast('Failed to update status','error');}}catch(e){showToast('Error updating status','error');}}
+async function deleteMessage(idx){const m=allMessages[idx];if(!m)return;if(!confirm('Delete this message?'))return;try{const r=await fetch(`${API_BASE_URL}/api/contact/`+(m._id||m.id),{method:'DELETE',headers:{'Authorization':'Bearer '+getToken()}});if(r.status===401){logout();return;}if(r.ok){allMessages.splice(idx,1);renderMessages();showToast('Message deleted','success');}else{showToast('Failed to delete message','error');}}catch(e){showToast('Error deleting message','error');}}
+function exportCSV(){if(!allAppointments.length){showToast('No appointments to export','error');return;}const headers=['ID','Name','Phone','Email','Car','Service','Date','Time','Address','Status','Notes'];const rows=allAppointments.map(a=>[(a._id||a.id),(a.name||''),(a.phone||''),(a.email||''),(a.car||''),(a.service||''),(a.date||''),(a.time||''),(a.address||''),(a.status||''),(a.notes||'')]);let csv=headers.join(',')+'\n';rows.forEach(r=>{csv+=r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')+'\n';});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='autoshine-appointments-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);showToast('CSV exported','success');}
+function showToast(msg,type){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast toast-'+type;t.innerHTML=(type==='success'?'&#9989; ':'&#10060; ')+msg;c.appendChild(t);setTimeout(()=>{t.classList.add('hiding');setTimeout(()=>t.remove(),400);},3000);}
+function showSection(sec){if(sec==='messages'){document.getElementById('messagesTableWrapper').scrollIntoView({behavior:'smooth'});}}
+document.addEventListener('DOMContentLoaded',()=>{fetchAppointments();fetchMessages();});
+</script>
+</body>
+</html>
