@@ -665,20 +665,24 @@
             if (!validateForm()) return;
 
             const formData = {
-                fullName: document.getElementById('fullName').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                carMake: document.getElementById('carMake').value.trim(),
-                carModel: document.getElementById('carModel').value.trim(),
-                carYear: document.getElementById('carYear').value,
-                carColor: document.getElementById('carColor').value.trim(),
-                carSize: document.querySelector('input[name="carSize"]:checked').value,
-                serviceType: serviceSelect.options[serviceSelect.selectedIndex].value,
-                preferredDate: dateInput.value,
-                preferredTime: document.getElementById('preferredTime').value,
-                fullAddress: document.getElementById('fullAddress').value.trim(),
-                specialInstructions: document.getElementById('specialInstructions').value.trim()
-            };
+    customerName: document.getElementById('fullName').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    email: document.getElementById('email').value.trim(),
+
+    carMake: document.getElementById('carMake').value.trim(),
+    carModel: document.getElementById('carModel').value.trim(),
+    carYear: document.getElementById('carYear').value,
+    carColor: document.getElementById('carColor').value.trim(),
+    carSize: document.querySelector('input[name="carSize"]:checked').value,
+
+    serviceType: serviceSelect.value,
+
+    appointmentDate: dateInput.value,
+    appointmentTime: document.getElementById('preferredTime').value,
+
+    address: document.getElementById('fullAddress').value.trim(),
+    notes: document.getElementById('specialInstructions').value.trim()
+};
 
             submitBtn.disabled = true;
             btnText.innerHTML = '<span class="spinner"></span> Submitting...';
@@ -690,23 +694,37 @@
                     body: JSON.stringify(formData)
                 });
 
-                if (response.ok) {
-                    formContainer.style.display = 'none';
-                    successState.classList.add('show');
-                    document.getElementById('successMessage').textContent = 'Thank you ' + formData.fullName + '! Your appointment has been received. We will contact you within 1 hour to confirm your booking.';
-                    document.getElementById('summaryServiceSuccess').textContent = formData.serviceType;
-                    document.getElementById('summaryDateTimeSuccess').textContent = formData.preferredDate + ' at ' + formData.preferredTime;
-                    document.getElementById('summaryAddressSuccess').textContent = formData.fullAddress;
-                    successState.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    throw new Error('Server error');
-                }
+                const data = await response.json();
+
+if (!response.ok) {
+    throw new Error(data.error || data.message || 'Server error');
+}
+
+formContainer.style.display = 'none';
+successState.classList.add('show');
+
+document.getElementById('successMessage').textContent =
+    'Thank you ' + formData.customerName +
+    '! Your appointment has been received. We will contact you within 1 hour to confirm your booking.';
+
+document.getElementById('summaryServiceSuccess').textContent = formData.serviceType;
+document.getElementById('summaryDateTimeSuccess').textContent =
+    formData.appointmentDate + ' at ' + formData.appointmentTime;
+document.getElementById('summaryAddressSuccess').textContent = formData.address;
+
+successState.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+});
             } catch (err) {
-                submitBtn.disabled = false;
-                btnText.textContent = 'CONFIRM BOOKING';
-                errorSubmit.textContent = 'Something went wrong. Please try again or contact us on WhatsApp.';
-                errorSubmit.classList.add('show');
-            }
+    submitBtn.disabled = false;
+    btnText.textContent = 'CONFIRM BOOKING';
+
+    errorSubmit.textContent = err.message;
+    errorSubmit.classList.add('show');
+
+    console.log(err);
+}
         });
 
         document.querySelectorAll('.form-group input, .form-group select, .form-group textarea').forEach(input => {
