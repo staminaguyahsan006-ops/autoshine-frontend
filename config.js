@@ -4,4 +4,4 @@
 // Every page (booking, contact, admin login, admin dashboard)
 // reads from this ONE place — update it here only.
 // ═══════════════════════════════════════════════════════════
-const API_BASE_URL = "https://YOUR-BACKEND-NAME.onrender.com";
+const API_BASE_URL = "https://autoshine-backend.onrender.com";
