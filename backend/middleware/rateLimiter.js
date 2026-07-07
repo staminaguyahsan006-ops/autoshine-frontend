@@ -93,9 +93,9 @@ const generalLimiter = createLimiter({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const bookingLimiter = createLimiter({
   name: 'booking',
-  windowMs: 60 * 60 * 1000,
-  maxRequests: 5,
-  blockDurationMs: 60 * 60 * 1000
+  windowMs: 60 * 1000,      // 1 minute
+  maxRequests: 100,         // 100 requests allowed
+  blockDurationMs: 60 * 1000
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -103,9 +103,9 @@ const bookingLimiter = createLimiter({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const contactLimiter = createLimiter({
   name: 'contact',
-  windowMs: 60 * 60 * 1000,
-  maxRequests: 3,
-  blockDurationMs: 60 * 60 * 1000
+  windowMs: 60 * 1000,
+  maxRequests: 100,
+  blockDurationMs: 60 * 1000
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -113,9 +113,9 @@ const contactLimiter = createLimiter({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const adminLoginLimiter = createLimiter({
   name: 'adminLogin',
-  windowMs: 15 * 60 * 1000,
-  maxRequests: 5,
-  blockDurationMs: 30 * 60 * 1000
+  windowMs: 60 * 1000,
+  maxRequests: 100,
+  blockDurationMs: 60 * 1000
 });
 
 module.exports = {
