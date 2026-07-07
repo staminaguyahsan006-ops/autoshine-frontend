@@ -697,7 +697,11 @@
                 const data = await response.json();
 
 if (!response.ok) {
-    throw new Error(data.error || data.message || 'Server error');
+    throw new Error(
+    data.messages
+        ? data.messages.join('\n')
+        : (data.error || data.message || 'Server error')
+);
 }
 
 formContainer.style.display = 'none';
